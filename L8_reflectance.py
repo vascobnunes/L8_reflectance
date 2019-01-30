@@ -3,21 +3,21 @@
 # Author: Roberto Cuccu - RSS Team - 2018
 
 from argparse import ArgumentParser
-import os, re, sys, glob, shutil
+import os, sys, shutil
 import numpy as np
 import gdal
 from L8_utils import L8_MTL, L8_Product
 
 
-def process_band(myband,mult,add,se,outband):
-
-    print myband + ' | ' + mult + ' | ' + add + ' | ' + se + ' | ' + outband
+def process_band(myband, mult, add, se, outband):
+    print
+    myband + ' | ' + mult + ' | ' + add + ' | ' + se + ' | ' + outband
 
     # Open input band with GDAL
     ds = gdal.Open(myband)
     band = ds.GetRasterBand(1)
     arr = band.ReadAsArray()
-    [cols, rows] = arr.shape    
+    [cols, rows] = arr.shape
 
     # Calculate TOA reflectance band
     # ------------------------------------------------------------------
@@ -28,15 +28,16 @@ def process_band(myband,mult,add,se,outband):
     # Write Output TOA reflectanf band in GTiff Float32
     driver = gdal.GetDriverByName("GTiff")
     outdata = driver.Create(outband, rows, cols, 1, gdal.GDT_Float32)
-    outdata.SetGeoTransform(ds.GetGeoTransform()) #Set same GEO transformation coeff as input
-    outdata.SetProjection(ds.GetProjection()) #Set same projection as input
-    outdata.GetRasterBand(1).WriteArray(rf) 
+    outdata.SetGeoTransform(ds.GetGeoTransform())  # Set same GEO transformation coeff as input
+    outdata.SetProjection(ds.GetProjection())  # Set same projection as input
+    outdata.GetRasterBand(1).WriteArray(rf)
     outdata.FlushCache()
 
     # Release variables
     outdata = None
-    band=None
-    ds=None
+    band = None
+    ds = None
+
 
 def main():
     # parse arguments
@@ -53,7 +54,7 @@ def main():
     outprodpath = args.outproduct
 
     if not os.path.exists(outprodpath):
-       os.makedirs(outprodpath)
+        os.makedirs(outprodpath)
 
     # Create L8 TOA output product folder
     input_prod = args.product
@@ -62,12 +63,13 @@ def main():
     L8_outprodpath = os.path.join(outprodpath, out_prod_toa)
 
     if os.path.exists(L8_outprodpath):
-       print "Found existing directory {} . cleaning it and recreating it..".format(L8_outprodpath)
-       shutil.rmtree(L8_outprodpath)
-       os.makedirs(L8_outprodpath)
+        print
+        "Found existing directory {} . cleaning it and recreating it..".format(L8_outprodpath)
+        shutil.rmtree(L8_outprodpath)
+        os.makedirs(L8_outprodpath)
     else:
-       os.makedirs(L8_outprodpath)
-   
+        os.makedirs(L8_outprodpath)
+
     # Retrieve sun elevation angle from metadata
     se = L8_metadata.sun_elevation_angle
 
@@ -76,27 +78,23 @@ def main():
 
     # Loop over bands
     for i in bi:
+        # Retrieve input band location
+        curr_band = L8_prod.bands["b{}".format(i)]
 
-       # Retrieve input band location 
-       curr_band = L8_prod.bands["b{}".format(i)]
+        # Determine output band location
+        input_band_filename = os.path.basename(curr_band)
+        output_band_filename = input_band_filename.replace(".TIF", "_TOA.TIF")
+        output_band_path = os.path.join(L8_outprodpath, output_band_filename)
 
-       # Determine output band location
-       input_band_filename = os.path.basename(curr_band)
-       output_band_filename = input_band_filename.replace(".TIF","_TOA.TIF")
-       output_band_path = os.path.join(L8_outprodpath, output_band_filename)
+        # Retrieve rescaling factors
+        mult = L8_metadata.reflectance_mult_factors["REFLECTANCE_MULT_BAND_{}".format(i)]
+        add = L8_metadata.reflectance_add_factors["REFLECTANCE_ADD_BAND_{}".format(i)]
 
-       # Retrieve rescaling factors
-       mult = L8_metadata.reflectance_mult_factors["REFLECTANCE_MULT_BAND_{}".format(i)]
-       add = L8_metadata.reflectance_add_factors["REFLECTANCE_ADD_BAND_{}".format(i)]
-
-       # Process band       
-       process_band(curr_band,mult,add,se,output_band_path)    
-
+        # Process band
+        process_band(curr_band, mult, add, se, output_band_path)
 
     sys.exit(0)
 
 
 if __name__ == "__main__":
     main()
-
-
