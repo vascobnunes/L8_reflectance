@@ -1,7 +1,7 @@
 try:
     from setuptools import setup
 
-    setup_kwargs = {'entry_points': {'console_scripts': ['L8_reflectance=L8_reflectance:main']}}
+    setup_kwargs = {'entry_points': {'console_scripts': ['L8_reflectance=L8_reflectance.L8_reflectance:main']}}
 except ImportError:
     from distutils.core import setup
 
