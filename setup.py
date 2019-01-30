@@ -1,7 +1,7 @@
 try:
     from setuptools import setup
 
-    setup_kwargs = {'entry_points': {'console_scripts': ['L8_reflectance=L8_reflectance.L8_reflectance:main']}}
+    setup_kwargs = {'entry_points': {'console_scripts': ['L8_reflectance=L8_reflectance:main']}}
 except ImportError:
     from distutils.core import setup
 
@@ -13,7 +13,7 @@ setup(name='L8_reflectance',
       version=tag,
       py_modules=['L8_reflectance'],
       description='Convert Landsat 8 from DN to reflectance TOA',
-      url='https://github.com/ESRIN-RSS/L8_reflectance/tree/develop',
+      url='https://github.com/ESRIN-RSS/L8_reflectance',
       author='Roberto Cuccu',
       author_email='roberto.cuccu@esa.int',
       license='GPL',
