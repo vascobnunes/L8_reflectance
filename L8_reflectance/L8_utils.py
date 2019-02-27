@@ -43,6 +43,12 @@ class L8_Product:
             file_to_match = 'L*_B7.TIF'
             band_7 = glob.glob(os.path.join(product_path, file_to_match))[0]
             self.band_7 = band_7
+            file_to_match = 'L*_B10.TIF'
+            band_10 = glob.glob(os.path.join(product_path, file_to_match))[0]
+            self.band_10 = band_10
+            file_to_match = 'L*_B11.TIF'
+            band_11 = glob.glob(os.path.join(product_path, file_to_match))[0]
+            self.band_11 = band_11
 
             self.bands = {
                 "b1": band_1,
@@ -51,7 +57,9 @@ class L8_Product:
                 "b4": band_4,
                 "b5": band_5,
                 "b6": band_6,
-                "b7": band_7
+                "b7": band_7,
+                "b10": band_10,
+                "b11": band_11
             }
 
         except IndexError:
@@ -109,6 +117,14 @@ class L8_MTL:
             reflectance_mult_band_7 = get_mtl_value(MTL_content, string_to_search)
             self.reflectance_mult_band_7 = reflectance_mult_band_7
 
+            string_to_search = 'K1_CONSTANT_BAND_10 =.*'
+            reflectance_mult_band_10 = get_mtl_value(MTL_content, string_to_search)
+            self.reflectance_mult_band_10 = reflectance_mult_band_10
+
+            string_to_search = 'K1_CONSTANT_BAND_11 =.*'
+            reflectance_mult_band_11 = get_mtl_value(MTL_content, string_to_search)
+            self.reflectance_mult_band_11 = reflectance_mult_band_11
+
             self.reflectance_mult_factors = {
                 "REFLECTANCE_MULT_BAND_1": reflectance_mult_band_1,
                 "REFLECTANCE_MULT_BAND_2": reflectance_mult_band_2,
@@ -116,7 +132,9 @@ class L8_MTL:
                 "REFLECTANCE_MULT_BAND_4": reflectance_mult_band_4,
                 "REFLECTANCE_MULT_BAND_5": reflectance_mult_band_5,
                 "REFLECTANCE_MULT_BAND_6": reflectance_mult_band_6,
-                "REFLECTANCE_MULT_BAND_7": reflectance_mult_band_7
+                "REFLECTANCE_MULT_BAND_7": reflectance_mult_band_7,
+                "K1_CONSTANT_BAND_10": reflectance_mult_band_10,
+                "K1_CONSTANT_BAND_11": reflectance_mult_band_11
             }
 
             # REFLECTANCE ADD BANDS
@@ -148,6 +166,14 @@ class L8_MTL:
             reflectance_add_band_7 = get_mtl_value(MTL_content, string_to_search)
             self.reflectance_add_band_7 = reflectance_add_band_7
 
+            string_to_search = 'K2_CONSTANT_BAND_10 =.*'
+            reflectance_add_band_10 = get_mtl_value(MTL_content, string_to_search)
+            self.reflectance_add_band_10 = reflectance_add_band_10
+
+            string_to_search = 'K2_CONSTANT_BAND_11 =.*'
+            reflectance_add_band_11 = get_mtl_value(MTL_content, string_to_search)
+            self.reflectance_add_band_11 = reflectance_add_band_11
+
             self.reflectance_add_factors = {
                 "REFLECTANCE_ADD_BAND_1": reflectance_add_band_1,
                 "REFLECTANCE_ADD_BAND_2": reflectance_add_band_2,
@@ -155,7 +181,9 @@ class L8_MTL:
                 "REFLECTANCE_ADD_BAND_4": reflectance_add_band_4,
                 "REFLECTANCE_ADD_BAND_5": reflectance_add_band_5,
                 "REFLECTANCE_ADD_BAND_6": reflectance_add_band_6,
-                "REFLECTANCE_ADD_BAND_7": reflectance_add_band_7
+                "REFLECTANCE_ADD_BAND_7": reflectance_add_band_7,
+                "K2_CONSTANT_BAND_10": reflectance_add_band_10,
+                "K2_CONSTANT_BAND_11": reflectance_add_band_11
             }
 
             # SUN ELEVATION and ZENITH angles

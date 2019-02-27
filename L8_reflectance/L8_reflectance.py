@@ -6,10 +6,10 @@ from argparse import ArgumentParser
 import os, sys, shutil
 import numpy as np
 import gdal
-from L8_reflectance.L8_utils import L8_MTL, L8_Product
+from L8_utils import L8_MTL, L8_Product
 
 
-def process_band(myband, mult, add, se, outband):
+def process_band(myband, mult, add, se, outband, thermal):
     print
     myband + ' | ' + mult + ' | ' + add + ' | ' + se + ' | ' + outband
 
@@ -23,11 +23,16 @@ def process_band(myband, mult, add, se, outband):
     # ------------------------------------------------------------------
     # Reference: https://landsat.usgs.gov/using-usgs-landsat-8-product
     # ------------------------------------------------------------------
-    rf = ((np.float32(mult) * arr.astype(np.float32)) + np.float32(add)) / np.sin(np.deg2rad(np.float32(se)))
+    if not thermal:
+        rf = ((np.float32(mult) * arr.astype(np.float32)) + np.float32(add)) / np.sin(np.deg2rad(np.float32(se)))
+        gdt = gdal.GDT_Float32
+    else:
+        rf = np.float32(add) / (np.log((np.float32(mult)/arr.astype(np.float32)) + 1))
+        gdt = gdal.GDT_Int16
 
     # Write Output TOA reflectanf band in GTiff Float32
     driver = gdal.GetDriverByName("GTiff")
-    outdata = driver.Create(outband, rows, cols, 1, gdal.GDT_Float32)
+    outdata = driver.Create(outband, rows, cols, 1, gdt)
     outdata.SetGeoTransform(ds.GetGeoTransform())  # Set same GEO transformation coeff as input
     outdata.SetProjection(ds.GetProjection())  # Set same projection as input
     outdata.GetRasterBand(1).WriteArray(rf)
@@ -74,7 +79,7 @@ def main():
     se = L8_metadata.sun_elevation_angle
 
     # L8 reflectance band indexes
-    bi = [1, 2, 3, 4, 5, 6, 7]
+    bi = [1, 2, 3, 4, 5, 6, 7, 10, 11]
 
     # Loop over bands
     for i in bi:
@@ -87,11 +92,16 @@ def main():
         output_band_path = os.path.join(L8_outprodpath, output_band_filename)
 
         # Retrieve rescaling factors
-        mult = L8_metadata.reflectance_mult_factors["REFLECTANCE_MULT_BAND_{}".format(i)]
-        add = L8_metadata.reflectance_add_factors["REFLECTANCE_ADD_BAND_{}".format(i)]
-
-        # Process band
-        process_band(curr_band, mult, add, se, output_band_path)
+        if i<9:
+            mult = L8_metadata.reflectance_mult_factors["REFLECTANCE_MULT_BAND_{}".format(i)]
+            add = L8_metadata.reflectance_add_factors["REFLECTANCE_ADD_BAND_{}".format(i)]
+            # Process band
+            process_band(curr_band, mult, add, se, output_band_path, False)
+        else:
+            mult = L8_metadata.reflectance_mult_factors["K1_CONSTANT_BAND_{}".format(i)]
+            add = L8_metadata.reflectance_add_factors["K2_CONSTANT_BAND_{}".format(i)]
+            # Process band
+            process_band(curr_band, mult, add, se, output_band_path, True)
 
     sys.exit(0)
 
