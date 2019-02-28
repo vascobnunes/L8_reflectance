@@ -9,7 +9,7 @@ import gdal
 from L8_utils import L8_MTL, L8_Product
 
 
-def process_band(myband, mult, add, se, outband, thermal):
+def process_band(myband, mult, add, se, outband, K1, K2, thermal):
     print
     myband + ' | ' + mult + ' | ' + add + ' | ' + se + ' | ' + outband
 
@@ -27,8 +27,9 @@ def process_band(myband, mult, add, se, outband, thermal):
         rf = ((np.float32(mult) * arr.astype(np.float32)) + np.float32(add)) / np.sin(np.deg2rad(np.float32(se)))
         gdt = gdal.GDT_Float32
     else:
-        rf = np.float32(add) / (np.log((np.float32(mult)/arr.astype(np.float32)) + 1))
-        gdt = gdal.GDT_Int16
+        toa_radiance = (np.float32(mult) * arr.astype(np.float32)) + np.float32(add)
+        rf = np.float32(K2) / np.log(np.float32(K1)/toa_radiance + 1)
+        gdt = gdal.GDT_Float32
 
     # Write Output TOA reflectanf band in GTiff Float32
     driver = gdal.GetDriverByName("GTiff")
@@ -96,12 +97,14 @@ def main():
             mult = L8_metadata.reflectance_mult_factors["REFLECTANCE_MULT_BAND_{}".format(i)]
             add = L8_metadata.reflectance_add_factors["REFLECTANCE_ADD_BAND_{}".format(i)]
             # Process band
-            process_band(curr_band, mult, add, se, output_band_path, False)
+            process_band(curr_band, mult, add, se, output_band_path, None, None, False)
         else:
-            mult = L8_metadata.reflectance_mult_factors["K1_CONSTANT_BAND_{}".format(i)]
-            add = L8_metadata.reflectance_add_factors["K2_CONSTANT_BAND_{}".format(i)]
+            mult = L8_metadata.reflectance_mult_factors["RADIANCE_MULT_BAND_{}".format(i)]
+            add = L8_metadata.reflectance_add_factors["RADIANCE_ADD_BAND_{}".format(i)]
+            K1 = L8_metadata.reflectance_mult_factors["K1_CONSTANT_BAND_{}".format(i)]
+            K2 = L8_metadata.reflectance_add_factors["K2_CONSTANT_BAND_{}".format(i)]
             # Process band
-            process_band(curr_band, mult, add, se, output_band_path, True)
+            process_band(curr_band, mult, add, se, output_band_path, K1, K2, True)
 
     sys.exit(0)
 
