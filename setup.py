@@ -7,7 +7,7 @@ except ImportError:
 
     setup_kwargs = {'scripts': ['bin/L8_reflectance']}
 
-tag = '0.0.3'
+tag = '0.0.4'
 
 setup(name='L8_reflectance',
       version=tag,

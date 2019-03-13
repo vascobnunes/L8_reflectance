@@ -6,7 +6,7 @@ from argparse import ArgumentParser
 import os, sys, shutil
 import numpy as np
 import gdal
-from L8_utils import L8_MTL, L8_Product
+from L8_reflectance.L8_utils import L8_MTL, L8_Product
 
 
 def process_band(myband, mult, add, se, outband, K1, K2, thermal):
