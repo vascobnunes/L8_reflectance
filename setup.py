@@ -7,7 +7,7 @@ except ImportError:
 
     setup_kwargs = {'scripts': ['bin/L8_reflectance']}
 
-tag = '0.0.4'
+tag = '0.0.5'
 
 setup(name='L8_reflectance',
       version=tag,
@@ -19,6 +19,6 @@ setup(name='L8_reflectance',
       license='GPL',
       zip_safe=False,
       packages=['L8_reflectance'],
-      install_requires=['numpy==1.15.1', 'gdal'],
+      install_requires=['numpy', 'gdal'],
       dependency_links=['https://www.conan.io/source/Gdal/2.1.3/osechet/stable'],
       **setup_kwargs)
